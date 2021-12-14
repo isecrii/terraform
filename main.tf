@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
 }
-
+/*
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 }
@@ -120,3 +120,4 @@ output "out_db_sg_id" {
 output "out_web_sg_id" {
   value = aws_security_group.terraform_web_SG[*].id
 }
+*/
