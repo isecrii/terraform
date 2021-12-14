@@ -55,50 +55,68 @@ resource "aws_route_table_association" "rt_assoc_private" {
   route_table_id = aws_route_table.rt_private.id
 }
 
-resource "aws_security_group" "sg_web" {
-  name        = "sg_web"
-  description = "Allow SSH HTTP HTTPS inbound traffic"
-  vpc_id      = aws_vpc.vpc.id
+resource "aws_security_group" "terraform_web_SG" {
+  name   = var.web_sg
+  vpc_id = var.vpc_id
 
   dynamic "ingress" {
     for_each = var.sg_ports
     iterator = port
+
     content {
       from_port   = port.value
       to_port     = port.value
-      protocol    = var.protocol
-      cidr_blocks = [var.cidr_block]
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 
-  dynamic "egress" {
-    for_each = var.sg_ports
-    content {
-      from_port   = egress.value
-      to_port     = egress.value
-      protocol    = var.protocol
-      cidr_blocks = [var.cidr_block]
-    }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = merge(
+    {
+      Name = "terraform-web-SG"
+    },
+    var.tags
+  )
 }
 
-resource "aws_security_group" "sg_db" {
-  name = "sg_db"
-  description = "RDS postgres servers"
-  vpc_id = aws_vpc.vpc.id
+resource "aws_security_group" "terraform_db_SG" {
+  name   = var.db_sg
+  vpc_id = var.vpc_id
+
 
   ingress {
-    from_port = 5432
-    to_port = 5432
-    protocol = "tcp"
+    from_port       = var.db_port
+    to_port         = var.db_port
+    protocol        = "tcp"
+    cidr_blocks     = ["50.73.96.130/32"]
+    security_groups = [aws_security_group.terraform_web_SG.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow all outbound traffic.
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  tags = merge(
+    {
+      Name = "terraform-db-SG"
+    },
+    var.tags
+  )
+}
+
+output "out_db_sg_id" {
+  value = aws_security_group.terraform_db_SG[*].id
+}
+output "out_web_sg_id" {
+  value = aws_security_group.terraform_web_SG[*].id
 }
