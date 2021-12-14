@@ -1,7 +1,7 @@
-variable "vpc_id" {
+variable "vpc_cidr" {
   type = string
 }
-
+/*
 variable "tags" {
   type = map(string)
   default = {
@@ -73,3 +73,4 @@ variable "cidr_block" {
   type    = string
   default = "0.0.0.0/0"
 }
+*/
