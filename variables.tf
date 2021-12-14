@@ -1,3 +1,9 @@
+variable "vpc_id" {
+  type = string
+  default = aws_vpc.vpc.id
+
+}
+
 variable "tags" {
   type = map(string)
   default = {
@@ -58,16 +64,6 @@ variable "private_az" {
 variable "instance_type" {
   type    = string
   default = "t2.micro"
-}
-
-variable "public_key" {
-  type    = string
-  default = "~/.ssh/id_rsa.pub"
-}
-
-variable "private_key" {
-  type    = string
-  default = "~/.ssh/id_rsa"
 }
 
 variable "protocol" {
